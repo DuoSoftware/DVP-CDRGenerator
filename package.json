@@ -10,8 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "async": "^2.0.1",
-    "dvp-common": "^0.4.4",
-    "dvp-dbmodels": "^0.4.2",
+    "dvp-common": "^0.4.6",
+    "dvp-dbmodels": "^0.4.4",
     "moment": "^2.14.1",
     "node-schedule": "^1.1.1",
     "redis": "^2.6.2"
