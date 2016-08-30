@@ -5,7 +5,7 @@
 #RUN cd /usr/local/src/cdrgenerator; npm install
 #CMD ["nodejs", "/usr/local/src/cdrgenerator/app.js"]
 
-#EXPOSE 8859
+##EXPOSE 8859
 
 FROM node:5.10.0
 RUN git clone git://github.com/DuoSoftware/DVP-CDRGenerator.git /usr/local/src/cdrgenerator
