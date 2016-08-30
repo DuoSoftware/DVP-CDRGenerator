@@ -1,0 +1,19 @@
+{
+  "name": "dvp-cdrgenerator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.0.1",
+    "dvp-common": "^0.4.4",
+    "dvp-dbmodels": "^0.4.2",
+    "moment": "^2.14.1",
+    "node-schedule": "^1.1.1",
+    "redis": "^2.6.2"
+  }
+}
