@@ -253,6 +253,7 @@ var processSingleCdrLeg = function(uuid, callback)
                     //process common data
 
                     cdrAppendObj.Uuid = primaryLeg.Uuid;
+                    cdrAppendObj.RecordingUuid = primaryLeg.Uuid;
                     cdrAppendObj.CallUuid = primaryLeg.CallUuid;
                     cdrAppendObj.BridgeUuid = primaryLeg.BridgeUuid;
                     cdrAppendObj.SwitchName = primaryLeg.SwitchName;
@@ -310,10 +311,12 @@ var processSingleCdrLeg = function(uuid, callback)
 
                     cdrAppendObj.DVPCallDirection = primaryLeg.DVPCallDirection;
 
-                    if (primaryLeg.DVPCallDirection === 'inbound')
+                    cdrAppendObj.HoldSec = cdrAppendObj.HoldSec +  primaryLeg.HoldSec;
+
+                    /*if (primaryLeg.DVPCallDirection === 'inbound')
                     {
                         cdrAppendObj.HoldSec = primaryLeg.HoldSec;
-                    }
+                    }*/
 
 
                     cdrAppendObj.QueueSec = primaryLeg.QueueSec;
@@ -330,6 +333,10 @@ var processSingleCdrLeg = function(uuid, callback)
 
                     if(secondaryLeg)
                     {
+                        if(cdrAppendObj.DVPCallDirection === 'outbound')
+                        {
+                            cdrAppendObj.RecordingUuid = secondaryLeg.Uuid;
+                        }
 
                         callHangupDirectionB = secondaryLeg.HangupDisposition;
 
@@ -339,10 +346,11 @@ var processSingleCdrLeg = function(uuid, callback)
                         cdrAppendObj.AnsweredTime = secondaryLeg.AnsweredTime;
 
 
-                        if (primaryLeg.DVPCallDirection === 'outbound')
+                        cdrAppendObj.HoldSec = cdrAppendObj.HoldSec + secondaryLeg.HoldSec;
+                        /*if (primaryLeg.DVPCallDirection === 'outbound')
                         {
                             cdrAppendObj.HoldSec = secondaryLeg.HoldSec;
-                        }
+                        }*/
 
                         cdrAppendObj.BillSec = secondaryLeg.BillSec;
 
