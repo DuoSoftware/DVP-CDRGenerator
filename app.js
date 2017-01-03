@@ -178,31 +178,82 @@ var processSingleCdrLeg = function(uuid, callback)
                         return item.Direction === 'outbound';
                     });
 
-                    if(filteredOutb.length > 1)
-                    {
-                        var filteredOutbAnswered = filteredOutb.filter(function (item2)
-                        {
-                            return item2.IsAnswered;
-                        });
 
-                        if(filteredOutbAnswered && filteredOutbAnswered.length > 0)
+                    var transferredParties = '';
+
+                    var transferCallOriginalCallLeg = null;
+
+                    var transferLegB = filteredOutb.filter(function (item)
+                    {
+                        if ((item.ObjType === 'ATT_XFER_USER' || item.ObjType === 'ATT_XFER_GATEWAY') && !item.IsTransferredParty)
                         {
-                            secondaryLeg = filteredOutbAnswered[0];
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+
+                    });
+
+                    var actualTransferLegs = filteredOutb.filter(function (item)
+                    {
+                        if (item.IsTransferredParty)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+
+                    });
+
+                    if(transferLegB && transferLegB.length > 0)
+                    {
+                        transferCallOriginalCallLeg = transferLegB[0];
+                    }
+
+                    if(transferCallOriginalCallLeg)
+                    {
+                        secondaryLeg = transferCallOriginalCallLeg;
+
+                        for(k = 0; k < actualTransferLegs.length; k++)
+                        {
+                            transferredParties = transferredParties + actualTransferLegs[k].SipToUser + ',';
                         }
                     }
                     else
                     {
-                        if(filteredOutb && filteredOutb.length > 0)
+                        if(filteredOutb.length > 1)
                         {
-                            secondaryLeg = filteredOutb[0];
+                            var filteredOutbAnswered = filteredOutb.filter(function (item2)
+                            {
+                                return item2.IsAnswered;
+                            });
+
+                            if(filteredOutbAnswered && filteredOutbAnswered.length > 0)
+                            {
+                                secondaryLeg = filteredOutbAnswered[0];
+                            }
+                        }
+                        else
+                        {
+                            if(filteredOutb && filteredOutb.length > 0)
+                            {
+                                secondaryLeg = filteredOutb[0];
+                            }
                         }
                     }
+
+
 
                     //process primary leg first
 
                     //process common data
 
                     cdrAppendObj.Uuid = primaryLeg.Uuid;
+                    cdrAppendObj.RecordingUuid = primaryLeg.Uuid;
                     cdrAppendObj.CallUuid = primaryLeg.CallUuid;
                     cdrAppendObj.BridgeUuid = primaryLeg.BridgeUuid;
                     cdrAppendObj.SwitchName = primaryLeg.SwitchName;
@@ -260,10 +311,12 @@ var processSingleCdrLeg = function(uuid, callback)
 
                     cdrAppendObj.DVPCallDirection = primaryLeg.DVPCallDirection;
 
-                    if (primaryLeg.DVPCallDirection === 'inbound')
+                    cdrAppendObj.HoldSec = cdrAppendObj.HoldSec +  primaryLeg.HoldSec;
+
+                    /*if (primaryLeg.DVPCallDirection === 'inbound')
                     {
                         cdrAppendObj.HoldSec = primaryLeg.HoldSec;
-                    }
+                    }*/
 
 
                     cdrAppendObj.QueueSec = primaryLeg.QueueSec;
@@ -280,6 +333,10 @@ var processSingleCdrLeg = function(uuid, callback)
 
                     if(secondaryLeg)
                     {
+                        if(cdrAppendObj.DVPCallDirection === 'outbound')
+                        {
+                            cdrAppendObj.RecordingUuid = secondaryLeg.Uuid;
+                        }
 
                         callHangupDirectionB = secondaryLeg.HangupDisposition;
 
@@ -289,10 +346,11 @@ var processSingleCdrLeg = function(uuid, callback)
                         cdrAppendObj.AnsweredTime = secondaryLeg.AnsweredTime;
 
 
-                        if (primaryLeg.DVPCallDirection === 'outbound')
+                        cdrAppendObj.HoldSec = cdrAppendObj.HoldSec + secondaryLeg.HoldSec;
+                        /*if (primaryLeg.DVPCallDirection === 'outbound')
                         {
                             cdrAppendObj.HoldSec = secondaryLeg.HoldSec;
-                        }
+                        }*/
 
                         cdrAppendObj.BillSec = secondaryLeg.BillSec;
 
@@ -309,6 +367,12 @@ var processSingleCdrLeg = function(uuid, callback)
                         if (secondaryLeg.BillSec > 0)
                         {
                             outLegAnswered = true;
+                        }
+
+                        if(transferredParties)
+                        {
+                            transferredParties = transferredParties.slice(0, -1);
+                            cdrAppendObj.TransferredParties = transferredParties;
                         }
                     }
 
