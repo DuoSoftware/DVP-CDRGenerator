@@ -11,17 +11,116 @@ var rule = new schedule.RecurrenceRule();
 rule.second = [0, 15, 30, 45];
 var doneProcessing = true;
 
+var GetSpecificLegsForTransfer = function(legUuid, cdrListArr, legInfo, callback)
+{
+    dbHandler.getSpecificLegByUuid(legUuid, function (err, transferLeg)
+    {
+        cdrListArr.push(legInfo);
+
+        if(transferLeg)
+        {
+            var tempTransLeg = transferLeg.toJSON();
+            tempTransLeg.IsTransferredParty = true;
+            cdrListArr.push(tempTransLeg);
+        }
+
+        callback(err, true);
+    })
+};
+
 var collectBLegs = function(cdrListArr, uuid, callUuid, callback)
 {
     dbHandler.getBLegsForIVRCalls(uuid, callUuid, function(err, legInfo)
     {
 
-        if(legInfo && legInfo.length > 0)
+        /*if(legInfo && legInfo.length > 0)
         {
             cdrListArr.push.apply(cdrListArr, legInfo);
+        }*/
+
+        if(legInfo && legInfo.length > 0)
+        {
+            var len = legInfo.length;
+            var current = 0;
+
+            for(i=0; i<legInfo.length; i++)
+            {
+                var legType = legInfo[i].ObjType;
+
+                if(legType && (legType === 'ATT_XFER_USER' || legType === 'ATT_XFER_GATEWAY'))
+                {
+                    //check for Originated Legs
+
+                    if(legInfo[i].OriginatedLegs)
+                    {
+                        var decodedLegsStr = decodeURIComponent(legInfo[i].OriginatedLegs);
+
+                        var formattedStr = decodedLegsStr.replace("ARRAY::", "");
+
+                        var legsUnformattedList = formattedStr.split('|:');
+
+                        if(legsUnformattedList && legsUnformattedList.length > 0)
+                        {
+                            var legProperties = legsUnformattedList[0].split(';');
+
+                            var legUuid = legProperties[0];
+
+                            GetSpecificLegsForTransfer(legUuid, cdrListArr, legInfo[i], function(err, transInfLegRes)
+                            {
+                                current++;
+
+                                if(current === len)
+                                {
+                                    callback(null, cdrListArr);
+                                }
+                            });
+                        }
+                        else
+                        {
+                            current++;
+
+                            cdrListArr.push(legInfo[i]);
+
+                            if(current === len)
+                            {
+                                callback(null, cdrListArr);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        current++;
+
+                        cdrListArr.push(legInfo[i]);
+
+                        if(current === len)
+                        {
+                            callback(null, cdrListArr);
+                        }
+                    }
+
+
+                }
+                else
+                {
+                    current++;
+
+                    cdrListArr.push(legInfo[i]);
+
+                    if(current === len)
+                    {
+                        callback(null, cdrListArr);
+                    }
+                }
+            }
+
+        }
+        else
+        {
+            callback(err, cdrListArr);
         }
 
-        callback(err, cdrListArr);
+        /*callback(err, cdrListArr);*/
     })
 };
 
@@ -35,7 +134,90 @@ var collectOtherLegsCDR = function(cdrListArr, relatedLegs, callback)
     {
         dbHandler.getSpecificLegByUuid(legUuid, function(err, legInfo)
         {
-            count++;
+            if(legInfo)
+            {
+                var legType = legInfo.ObjType;
+
+                if(legType && (legType === 'ATT_XFER_USER' || legType === 'ATT_XFER_GATEWAY'))
+                {
+                    if(legInfo.OriginatedLegs)
+                    {
+                        var decodedLegsStr = decodeURIComponent(legInfo.OriginatedLegs);
+
+                        var formattedStr = decodedLegsStr.replace("ARRAY::", "");
+
+                        var legsUnformattedList = formattedStr.split('|:');
+
+                        if (legsUnformattedList && legsUnformattedList.length > 0)
+                        {
+                            var legProperties = legsUnformattedList[0].split(';');
+
+                            var legUuid = legProperties[0];
+
+                            dbHandler.getSpecificLegByUuid(legUuid, function (err, transferLeg)
+                            {
+                                cdrListArr.push(legInfo);
+
+                                if(transferLeg)
+                                {
+                                    var tempTransLeg = transferLeg.toJSON();
+                                    tempTransLeg.IsTransferredParty = true;
+                                    cdrListArr.push(tempTransLeg);
+                                }
+
+                                count++;
+
+                                if(count === len)
+                                {
+                                    callback(null, true);
+                                }
+                            })
+                        }
+                        else
+                        {
+                            cdrListArr.push(legInfo);
+                            count++;
+
+                            if(count === len)
+                            {
+                                callback(null, true);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        cdrListArr.push(legInfo);
+                        count++;
+
+                        if(count === len)
+                        {
+                            callback(null, true);
+                        }
+                    }
+                }
+                else
+                {
+                    cdrListArr.push(legInfo);
+                    count++;
+
+                    if(count === len)
+                    {
+                        callback(null, true);
+                    }
+                }
+
+
+            }
+            else
+            {
+                count++;
+
+                if(count === len)
+                {
+                    callback(null, true);
+                }
+            }
+            /*count++;
             if(legInfo)
             {
                 cdrListArr.push(legInfo);
@@ -45,7 +227,7 @@ var collectOtherLegsCDR = function(cdrListArr, relatedLegs, callback)
             if(count === len)
             {
                 callback(null, true);
-            }
+            }*/
         })
 
     }
@@ -375,6 +557,12 @@ var processSingleCdrLeg = function(uuid, callback)
                             cdrAppendObj.TransferredParties = transferredParties;
                         }
                     }
+
+                    if(transferCallOriginalCallLeg)
+                    {
+                        cdrAppendObj.SipFromUser = transferCallOriginalCallLeg.SipFromUser;
+                    }
+
 
                     cdrAppendObj.IvrConnectSec = cdrAppendObj.Duration - cdrAppendObj.QueueSec - cdrAppendObj.HoldSec - cdrAppendObj.BillSec;
 
