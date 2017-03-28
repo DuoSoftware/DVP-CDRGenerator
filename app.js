@@ -393,7 +393,19 @@ var processSingleCdrLeg = function(uuid, callback)
 
                     if(transferLegB && transferLegB.length > 0)
                     {
-                        transferCallOriginalCallLeg = transferLegB[0];
+
+                        var transferLegBAnswered = filteredOutb.filter(function (item) {
+                            return item.IsAnswered === true;
+                        });
+
+                        if(transferLegBAnswered && transferLegBAnswered.length > 0)
+                        {
+                            transferCallOriginalCallLeg = transferLegBAnswered[0];
+                        }
+                        else
+                        {
+                            transferCallOriginalCallLeg = transferLegB[0];
+                        }
                     }
 
                     if(transferCallOriginalCallLeg)
@@ -666,7 +678,7 @@ var job = schedule.scheduleJob(rule, function(){
 
                         var hrsDiff = utcMoment.diff(keyMoment, 'hours');
 
-                        if(hrsDiff > 2)
+                        if(hrsDiff > -1)
                         {
                             //get redis set values
                             arr.push(processSetData.bind(this, keysArr[key]));
