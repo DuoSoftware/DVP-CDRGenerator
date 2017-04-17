@@ -78,6 +78,22 @@ var getBLegsForIVRCalls = function(uuid, callUuid, callback)
     }
 };
 
+var getAcwDetailsForSession = function(uuid, callback)
+{
+    try
+    {
+        dbModel.CallCDR.findAll({where :[{CallUuid: callUuid, Direction: 'outbound', Uuid: {ne: uuid}}]}).then(function(callLegs)
+        {
+            callback(null, callLegs);
+        });
+
+    }
+    catch(ex)
+    {
+        callback(ex, null);
+    }
+};
+
 
 
 module.exports.getCallLeg = getCallLeg;
