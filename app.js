@@ -452,6 +452,11 @@ var processSingleCdrLeg = function(uuid, callback)
                         }
                     }
 
+                    if(cdrAppendObj.ObjType === 'FAX_INBOUND')
+                    {
+                        cdrAppendObj.IsAnswered = primaryLeg.IsAnswered;
+                    }
+
 
 
 
