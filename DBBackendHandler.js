@@ -20,7 +20,7 @@ var getCallLeg = function(uuid, callback)
 {
     try
     {
-        dbModel.CallCDR.find({where :[{Uuid: uuid, Direction: 'inbound', ObjCategory: {ne: 'CONFERENCE'}, $or: [{OriginatedLegs: {ne: null}}, {OriginatedLegs: null, $or:[{ObjType: 'HTTAPI'},{ObjType: 'SOCKET'},{ObjType: 'REJECTED'},{ObjCategory: 'DND'}]}]}]}).then(function(callLeg)
+        dbModel.CallCDR.find({where :[{Uuid: uuid, Direction: 'inbound', ObjCategory: {ne: 'CONFERENCE'}, $or: [{OriginatedLegs: {ne: null}}, {OriginatedLegs: null, $or:[{ObjType: 'HTTAPI'},{ObjType: 'SOCKET'},{ObjType: 'REJECTED'},{ObjType: 'FAX_INBOUND'},{ObjCategory: 'DND'},{ObjCategory: 'OUTBOUND_DENIED'}]}]}]}).then(function(callLeg)
         {
             callback(undefined, callLeg);
 
