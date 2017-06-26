@@ -408,6 +408,8 @@ var processSingleCdrLeg = function(uuid, callback)
                         }
                     }
 
+                    var callCategory = primaryLeg.ObjCategory;
+
                     if(transferCallOriginalCallLeg)
                     {
                         secondaryLeg = transferCallOriginalCallLeg;
@@ -436,9 +438,26 @@ var processSingleCdrLeg = function(uuid, callback)
                             if(filteredOutb && filteredOutb.length > 0)
                             {
                                 secondaryLeg = filteredOutb[0];
+
+                                if(callCategory === 'FOLLOW_ME' || callCategory === 'FORWARDING')
+                                {
+                                    for (k = 0; k < filteredOutb.length; k++) {
+                                        transferredParties = transferredParties + filteredOutb[k].SipToUser + ',';
+                                    }
+
+                                }
+
+
                             }
                         }
                     }
+
+                    if(cdrAppendObj.ObjType === 'FAX_INBOUND')
+                    {
+                        cdrAppendObj.IsAnswered = primaryLeg.IsAnswered;
+                    }
+
+
 
 
 
