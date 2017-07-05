@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "async": "^2.0.1",
-    "dvp-common": "^0.8.1",
+    "dvp-common": "^0.8.4",
     "dvp-dbmodels": "0.9.6",
     "ioredis": "^3.1.1",
     "moment": "^2.14.1",
