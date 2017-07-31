@@ -13,6 +13,7 @@ module.exports = {
     "mode":"sentinel",//instance, cluster, sentinel
     "ip": "45.55.142.207",
     "port": 6389,
+    "db": 4,
     "user": "duo",
     "password": "DuoS123",
     "sentinels":{
