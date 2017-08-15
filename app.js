@@ -554,7 +554,6 @@ var processSingleCdrLeg = function(uuid, callback)
                         callHangupDirectionB = secondaryLeg.HangupDisposition;
 
                         cdrAppendObj.RecievedBy = secondaryLeg.SipToUser;
-                        cdrAppendObj.AnswerSec = secondaryLeg.AnswerSec;
 
                         cdrAppendObj.AnsweredTime = secondaryLeg.AnsweredTime;
 
@@ -580,6 +579,15 @@ var processSingleCdrLeg = function(uuid, callback)
                         if (secondaryLeg.BillSec > 0)
                         {
                             outLegAnswered = true;
+                        }
+
+                        if(outLegAnswered)
+                        {
+                            cdrAppendObj.AnswerSec = secondaryLeg.AnswerSec;
+                        }
+                        else
+                        {
+                            cdrAppendObj.AnswerSec = secondaryLeg.Duration;
                         }
 
                         if(transferredParties)
