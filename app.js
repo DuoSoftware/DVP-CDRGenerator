@@ -581,11 +581,9 @@ var processSingleCdrLeg = function(uuid, callback)
                             outLegAnswered = true;
                         }
 
-                        if(outLegAnswered)
-                        {
-                            cdrAppendObj.AnswerSec = secondaryLeg.AnswerSec;
-                        }
-                        else
+                        cdrAppendObj.AnswerSec = secondaryLeg.AnswerSec;
+
+                        if(!outLegAnswered && secondaryLeg.RecievedBy)
                         {
                             cdrAppendObj.AnswerSec = secondaryLeg.Duration;
                         }
