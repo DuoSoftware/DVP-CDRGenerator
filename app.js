@@ -432,6 +432,10 @@ var processSingleCdrLeg = function(uuid, callback)
                             {
                                 secondaryLeg = filteredOutbAnswered[0];
                             }
+                            else
+                            {
+                                secondaryLeg = filteredOutb[0];
+                            }
                         }
                         else
                         {
@@ -703,7 +707,7 @@ var job = schedule.scheduleJob(rule, function(){
 
                         var hrsDiff = utcMoment.diff(keyMoment, 'hours');
 
-                        if(hrsDiff > 2)
+                        if(hrsDiff > 0)
                         {
                             //get redis set values
                             arr.push(processSetData.bind(this, keysArr[key]));
