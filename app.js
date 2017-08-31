@@ -587,7 +587,7 @@ var processSingleCdrLeg = function(uuid, callback)
 
                         cdrAppendObj.AnswerSec = secondaryLeg.AnswerSec;
 
-                        if(!outLegAnswered && secondaryLeg.RecievedBy)
+                        if(!outLegAnswered && cdrAppendObj.RecievedBy)
                         {
                             cdrAppendObj.AnswerSec = secondaryLeg.Duration;
                         }
@@ -646,6 +646,11 @@ var processSingleCdrLeg = function(uuid, callback)
     })
 };
 
+processSingleCdrLeg("71a021a8-c1fe-4019-bb57-cb4426916ef7", function(err, resp)
+{
+    //callback(err, isSetEmpty);
+})
+
 var processSetData = function(setName, cb)
 {
 
@@ -677,7 +682,7 @@ var processSetData = function(setName, cb)
     );
 };
 
-var job = schedule.scheduleJob(rule, function(){
+/*var job = schedule.scheduleJob(rule, function(){
 
     //get current time in utc
 
@@ -737,4 +742,4 @@ var job = schedule.scheduleJob(rule, function(){
 
         })
     }
-});
+});*/
