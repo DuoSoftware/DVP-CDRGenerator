@@ -432,6 +432,10 @@ var processSingleCdrLeg = function(uuid, callback)
                             {
                                 secondaryLeg = filteredOutbAnswered[0];
                             }
+                            else
+                            {
+                                secondaryLeg = filteredOutb[0];
+                            }
                         }
                         else
                         {
@@ -554,7 +558,6 @@ var processSingleCdrLeg = function(uuid, callback)
                         callHangupDirectionB = secondaryLeg.HangupDisposition;
 
                         cdrAppendObj.RecievedBy = secondaryLeg.SipToUser;
-                        cdrAppendObj.AnswerSec = secondaryLeg.AnswerSec;
 
                         cdrAppendObj.AnsweredTime = secondaryLeg.AnsweredTime;
 
@@ -580,6 +583,13 @@ var processSingleCdrLeg = function(uuid, callback)
                         if (secondaryLeg.BillSec > 0)
                         {
                             outLegAnswered = true;
+                        }
+
+                        cdrAppendObj.AnswerSec = secondaryLeg.AnswerSec;
+
+                        if(!outLegAnswered && cdrAppendObj.RecievedBy)
+                        {
+                            cdrAppendObj.AnswerSec = secondaryLeg.Duration;
                         }
 
                         if(transferredParties)
@@ -635,6 +645,7 @@ var processSingleCdrLeg = function(uuid, callback)
         }
     })
 };
+
 
 var processSetData = function(setName, cb)
 {
