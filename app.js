@@ -328,6 +328,12 @@ var processSingleCdrLeg = function(uuid, callback)
             {
 
                 var primaryLeg = cdr;
+                var isOutboundTransferCall = false;
+
+                if(primaryLeg.DVPCallDirection === 'outbound' && (primaryLeg.ObjType === 'ATT_XFER_USER' || primaryLeg.ObjType === 'ATT_XFER_GATEWAY'))
+                {
+                    isOutboundTransferCall = true;
+                }
 
                 if(resp)
                 {
@@ -365,31 +371,67 @@ var processSingleCdrLeg = function(uuid, callback)
 
                     var transferCallOriginalCallLeg = null;
 
-                    var transferLegB = filteredOutb.filter(function (item)
+                    var transferLegB = [];
+                    var actualTransferLegs = [];
+
+                    if(isOutboundTransferCall)
                     {
-                        if ((item.ObjType === 'ATT_XFER_USER' || item.ObjType === 'ATT_XFER_GATEWAY') && !item.IsTransferredParty)
+                        transferLegB = filteredOutb.filter(function (item)
                         {
-                            return true;
-                        }
-                        else
+                            if (item.ObjType !== 'ATT_XFER_USER' && item.ObjType !== 'ATT_XFER_GATEWAY')
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+
+                        });
+
+                        actualTransferLegs = filteredOutb.filter(function (item)
                         {
-                            return false;
-                        }
+                            if (item.ObjType === 'ATT_XFER_USER' || item.ObjType === 'ATT_XFER_GATEWAY')
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
 
-                    });
-
-                    var actualTransferLegs = filteredOutb.filter(function (item)
+                        });
+                    }
+                    else
                     {
-                        if (item.IsTransferredParty)
+                        transferLegB = filteredOutb.filter(function (item)
                         {
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                            if ((item.ObjType === 'ATT_XFER_USER' || item.ObjType === 'ATT_XFER_GATEWAY') && !item.IsTransferredParty)
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
 
-                    });
+                        });
+
+                        actualTransferLegs = filteredOutb.filter(function (item)
+                        {
+                            if (item.IsTransferredParty)
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+
+                        });
+                    }
+
+
 
                     if(transferLegB && transferLegB.length > 0)
                     {
