@@ -599,10 +599,10 @@ var processSingleCdrLeg = function(uuid, callback)
                         }
                     }
 
-                    if(transferCallOriginalCallLeg)
+                    /*if(transferCallOriginalCallLeg)
                     {
                         cdrAppendObj.SipFromUser = transferCallOriginalCallLeg.SipFromUser;
-                    }
+                    }*/
 
 
                     cdrAppendObj.IvrConnectSec = cdrAppendObj.Duration - cdrAppendObj.QueueSec - cdrAppendObj.HoldSec - cdrAppendObj.BillSec;
