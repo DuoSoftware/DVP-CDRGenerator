@@ -328,6 +328,12 @@ var processSingleCdrLeg = function(uuid, callback)
             {
 
                 var primaryLeg = cdr;
+                var isOutboundTransferCall = false;
+
+                if(primaryLeg.DVPCallDirection === 'outbound' && (primaryLeg.ObjType === 'ATT_XFER_USER' || primaryLeg.ObjType === 'ATT_XFER_GATEWAY'))
+                {
+                    isOutboundTransferCall = true;
+                }
 
                 if(resp)
                 {
@@ -365,31 +371,67 @@ var processSingleCdrLeg = function(uuid, callback)
 
                     var transferCallOriginalCallLeg = null;
 
-                    var transferLegB = filteredOutb.filter(function (item)
+                    var transferLegB = [];
+                    var actualTransferLegs = [];
+
+                    if(isOutboundTransferCall)
                     {
-                        if ((item.ObjType === 'ATT_XFER_USER' || item.ObjType === 'ATT_XFER_GATEWAY') && !item.IsTransferredParty)
+                        transferLegB = filteredOutb.filter(function (item)
                         {
-                            return true;
-                        }
-                        else
+                            if (item.ObjType !== 'ATT_XFER_USER' && item.ObjType !== 'ATT_XFER_GATEWAY')
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+
+                        });
+
+                        actualTransferLegs = filteredOutb.filter(function (item)
                         {
-                            return false;
-                        }
+                            if (item.ObjType === 'ATT_XFER_USER' || item.ObjType === 'ATT_XFER_GATEWAY')
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
 
-                    });
-
-                    var actualTransferLegs = filteredOutb.filter(function (item)
+                        });
+                    }
+                    else
                     {
-                        if (item.IsTransferredParty)
+                        transferLegB = filteredOutb.filter(function (item)
                         {
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                            if ((item.ObjType === 'ATT_XFER_USER' || item.ObjType === 'ATT_XFER_GATEWAY') && !item.IsTransferredParty)
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
 
-                    });
+                        });
+
+                        actualTransferLegs = filteredOutb.filter(function (item)
+                        {
+                            if (item.IsTransferredParty)
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+
+                        });
+                    }
+
+
 
                     if(transferLegB && transferLegB.length > 0)
                     {
@@ -431,6 +473,10 @@ var processSingleCdrLeg = function(uuid, callback)
                             if(filteredOutbAnswered && filteredOutbAnswered.length > 0)
                             {
                                 secondaryLeg = filteredOutbAnswered[0];
+                            }
+                            else
+                            {
+                                secondaryLeg = filteredOutb[0];
                             }
                         }
                         else
@@ -554,7 +600,6 @@ var processSingleCdrLeg = function(uuid, callback)
                         callHangupDirectionB = secondaryLeg.HangupDisposition;
 
                         cdrAppendObj.RecievedBy = secondaryLeg.SipToUser;
-                        cdrAppendObj.AnswerSec = secondaryLeg.AnswerSec;
 
                         cdrAppendObj.AnsweredTime = secondaryLeg.AnsweredTime;
 
@@ -582,6 +627,13 @@ var processSingleCdrLeg = function(uuid, callback)
                             outLegAnswered = true;
                         }
 
+                        cdrAppendObj.AnswerSec = secondaryLeg.AnswerSec;
+
+                        if(!outLegAnswered && cdrAppendObj.RecievedBy)
+                        {
+                            cdrAppendObj.AnswerSec = secondaryLeg.Duration;
+                        }
+
                         if(transferredParties)
                         {
                             transferredParties = transferredParties.slice(0, -1);
@@ -589,10 +641,10 @@ var processSingleCdrLeg = function(uuid, callback)
                         }
                     }
 
-                    if(transferCallOriginalCallLeg)
+                    /*if(transferCallOriginalCallLeg)
                     {
                         cdrAppendObj.SipFromUser = transferCallOriginalCallLeg.SipFromUser;
-                    }
+                    }*/
 
 
                     cdrAppendObj.IvrConnectSec = cdrAppendObj.Duration - cdrAppendObj.QueueSec - cdrAppendObj.HoldSec - cdrAppendObj.BillSec;
@@ -635,6 +687,7 @@ var processSingleCdrLeg = function(uuid, callback)
         }
     })
 };
+
 
 var processSetData = function(setName, cb)
 {
