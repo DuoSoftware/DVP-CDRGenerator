@@ -324,8 +324,6 @@ var processCampaignCDR = function(primaryLeg, curCdr)
 
     var callCategory = '';
 
-    var firstLegAnswered = false;
-
 
     //Need to filter out inbound and outbound legs before processing
 
@@ -334,10 +332,7 @@ var processCampaignCDR = function(primaryLeg, curCdr)
     if(firstLeg)
     {
         //Process First Leg
-        callCategory = firstLeg.ObjCategory;
         callHangupDirectionA = firstLeg.HangupDisposition;
-
-
 
         if(firstLeg.ObjType === 'ATT_XFER_USER' || firstLeg.ObjType === 'ATT_XFER_GATEWAY')
         {
@@ -353,6 +348,8 @@ var processCampaignCDR = function(primaryLeg, curCdr)
         cdrAppendObj.RecievedBy = firstLeg.SipToUser;
         cdrAppendObj.IsAnswered = false;
         cdrAppendObj.HangupCause = firstLeg.HangupCause;
+        cdrAppendObj.CampaignName = firstLeg.CampaignName;
+        cdrAppendObj.CampaignId = firstLeg.CampaignId;
 
         cdrAppendObj.CreatedTime = moment(firstLeg.CreatedTime).local().format("YYYY-MM-DD HH:mm:ss");
         cdrAppendObj.Duration = firstLeg.Duration;
@@ -371,8 +368,6 @@ var processCampaignCDR = function(primaryLeg, curCdr)
 
 
         holdSecTemp = holdSecTemp + firstLeg.HoldSec;
-        cdrAppendObj.HoldSec = holdSecTemp;
-
 
         cdrAppendObj.QueueSec = 0;
         cdrAppendObj.AgentSkill = null;
@@ -434,6 +429,8 @@ var processCampaignCDR = function(primaryLeg, curCdr)
             holdSecTemp = holdSecTemp + agentLeg.HoldSec;
             callHangupDirectionB = agentLeg.HangupDisposition;
         }
+
+        cdrAppendObj.HoldSec = holdSecTemp;
 
     }
 
@@ -903,7 +900,7 @@ var job = schedule.scheduleJob(rule, function(){
 
                         var hrsDiff = utcMoment.diff(keyMoment, 'hours');
 
-                        if(hrsDiff > 2)
+                        if(hrsDiff > 0)
                         {
                             //get redis set values
                             arr.push(processSetData.bind(this, keysArr[key]));
