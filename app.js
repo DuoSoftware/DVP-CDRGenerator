@@ -339,22 +339,32 @@ var processCampaignCDR = function(primaryLeg, curCdr)
             isOutboundTransferCall = true;
         }
 
-        //use the counts in inbound leg
-
-
         cdrAppendObj.Uuid = firstLeg.Uuid;
+        cdrAppendObj.RecordingUuid = firstLeg.Uuid;
+        cdrAppendObj.CallUuid = firstLeg.CallUuid;
+        cdrAppendObj.BridgeUuid = firstLeg.BridgeUuid;
+        cdrAppendObj.SwitchName = firstLeg.SwitchName;
         cdrAppendObj.SipFromUser = firstLeg.SipFromUser;
         cdrAppendObj.SipToUser = firstLeg.SipToUser;
-        cdrAppendObj.RecievedBy = firstLeg.SipToUser;
-        cdrAppendObj.IsAnswered = false;
+        cdrAppendObj.RecievedBy = firstLeg.RecievedBy;
+        cdrAppendObj.CallerContext = firstLeg.CallerContext;
         cdrAppendObj.HangupCause = firstLeg.HangupCause;
+        cdrAppendObj.CreatedTime = firstLeg.CreatedTime;
+        cdrAppendObj.Duration = firstLeg.Duration;
+        cdrAppendObj.BridgedTime = firstLeg.BridgedTime;
+        cdrAppendObj.HangupTime = firstLeg.HangupTime;
+        cdrAppendObj.AppId = firstLeg.AppId;
+        cdrAppendObj.CompanyId = firstLeg.CompanyId;
+        cdrAppendObj.TenantId = firstLeg.TenantId;
+        cdrAppendObj.ExtraData = firstLeg.ExtraData;
+        cdrAppendObj.IsQueued = firstLeg.IsQueued;
+        cdrAppendObj.IsAnswered = false;
         cdrAppendObj.CampaignName = firstLeg.CampaignName;
         cdrAppendObj.CampaignId = firstLeg.CampaignId;
-
-        cdrAppendObj.CreatedTime = moment(firstLeg.CreatedTime).local().format("YYYY-MM-DD HH:mm:ss");
-        cdrAppendObj.Duration = firstLeg.Duration;
         cdrAppendObj.BillSec = 0;
         cdrAppendObj.HoldSec = 0;
+
+        holdSecTemp = holdSecTemp + firstLeg.HoldSec;
 
         if(firstLeg.ObjType === 'CUSTOMER')
         {
@@ -363,15 +373,48 @@ var processCampaignCDR = function(primaryLeg, curCdr)
             callHangupDirectionB = firstLeg.HangupDisposition;
             cdrAppendObj.IsAnswered = firstLeg.IsAnswered;
         }
+        if(firstLeg.ObjType === 'AGENT')
+        {
+            cdrAppendObj.AgentAnswered = firstLeg.IsAnswered;
+        }
 
         cdrAppendObj.DVPCallDirection = 'outbound';
 
 
         holdSecTemp = holdSecTemp + firstLeg.HoldSec;
 
-        cdrAppendObj.QueueSec = 0;
-        cdrAppendObj.AgentSkill = null;
-        cdrAppendObj.AnswerSec = 0;
+        cdrAppendObj.BillSec = 0;
+        cdrAppendObj.HoldSec = 0;
+        cdrAppendObj.ProgressSec = 0;
+        cdrAppendObj.FlowBillSec = 0;
+        cdrAppendObj.ProgressMediaSec = 0;
+        cdrAppendObj.WaitSec = 0;
+
+        if(firstLeg.ProgressSec)
+        {
+            cdrAppendObj.ProgressSec = firstLeg.ProgressSec;
+        }
+
+        if(firstLeg.FlowBillSec)
+        {
+            cdrAppendObj.FlowBillSec = firstLeg.FlowBillSec;
+        }
+
+        if(firstLeg.ProgressMediaSec)
+        {
+            cdrAppendObj.ProgressMediaSec = firstLeg.ProgressMediaSec;
+        }
+
+        if(firstLeg.WaitSec)
+        {
+            cdrAppendObj.WaitSec = firstLeg.WaitSec;
+        }
+
+        cdrAppendObj.QueueSec = firstLeg.QueueSec;
+        cdrAppendObj.AgentSkill = firstLeg.AgentSkill;
+
+        cdrAppendObj.AnswerSec = firstLeg.AnswerSec;
+        cdrAppendObj.AnsweredTime = firstLeg.AnsweredTime;
 
         cdrAppendObj.ObjType = firstLeg.ObjType;
         cdrAppendObj.ObjCategory = firstLeg.ObjCategory;
@@ -428,9 +471,15 @@ var processCampaignCDR = function(primaryLeg, curCdr)
         {
             holdSecTemp = holdSecTemp + agentLeg.HoldSec;
             callHangupDirectionB = agentLeg.HangupDisposition;
+
+            if(firstLeg.ObjType !== 'AGENT')
+            {
+                cdrAppendObj.AgentAnswered = agentLeg.IsAnswered;
+            }
         }
 
         cdrAppendObj.HoldSec = holdSecTemp;
+        cdrAppendObj.IvrConnectSec = 0;
 
     }
 
@@ -445,12 +494,6 @@ var processCampaignCDR = function(primaryLeg, curCdr)
         cdrAppendObj.HangupParty = 'SYSTEM';
     }
 
-
-    cdrAppendObj.BillSec = convertToMMSS(cdrAppendObj.BillSec);
-    cdrAppendObj.Duration = convertToMMSS(cdrAppendObj.Duration);
-    cdrAppendObj.AnswerSec = convertToMMSS(cdrAppendObj.AnswerSec);
-    cdrAppendObj.QueueSec = convertToMMSS(cdrAppendObj.QueueSec);
-    cdrAppendObj.HoldSec = convertToMMSS(cdrAppendObj.HoldSec);
 
     return cdrAppendObj;
 
@@ -900,7 +943,7 @@ var job = schedule.scheduleJob(rule, function(){
 
                         var hrsDiff = utcMoment.diff(keyMoment, 'hours');
 
-                        if(hrsDiff > 0)
+                        if(hrsDiff > 2)
                         {
                             //get redis set values
                             arr.push(processSetData.bind(this, keysArr[key]));
