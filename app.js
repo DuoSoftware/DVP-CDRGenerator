@@ -363,10 +363,15 @@ var processCampaignCDR = function(primaryLeg, curCdr)
         cdrAppendObj.CampaignId = firstLeg.CampaignId;
         cdrAppendObj.BillSec = 0;
         cdrAppendObj.HoldSec = 0;
+        cdrAppendObj.ProgressSec = 0;
+        cdrAppendObj.FlowBillSec = 0;
+        cdrAppendObj.ProgressMediaSec = 0;
+        cdrAppendObj.WaitSec = 0;
+        cdrAppendObj.AnswerSec = 0;
 
         holdSecTemp = holdSecTemp + firstLeg.HoldSec;
 
-        if(firstLeg.ObjType === 'CUSTOMER')
+        if(firstLeg.ObjType === 'BLAST' || firstLeg.ObjType === 'DIRECT' || firstLeg.ObjType === 'IVRCALLBACK')
         {
             cdrAppendObj.BillSec = firstLeg.BillSec;
             cdrAppendObj.AnswerSec = firstLeg.AnswerSec;
@@ -383,12 +388,6 @@ var processCampaignCDR = function(primaryLeg, curCdr)
 
         holdSecTemp = holdSecTemp + firstLeg.HoldSec;
 
-        cdrAppendObj.BillSec = 0;
-        cdrAppendObj.HoldSec = 0;
-        cdrAppendObj.ProgressSec = 0;
-        cdrAppendObj.FlowBillSec = 0;
-        cdrAppendObj.ProgressMediaSec = 0;
-        cdrAppendObj.WaitSec = 0;
 
         if(firstLeg.ProgressSec)
         {
