@@ -482,6 +482,11 @@ var processCampaignCDR = function(primaryLeg, curCdr)
 
     }
 
+    if(!cdrAppendObj.IsAnswered)
+    {
+        cdrAppendObj.AnswerSec = cdrAppendObj.Duration;
+    }
+
 
     if (callHangupDirectionA === 'recv_bye') {
         cdrAppendObj.HangupParty = 'CALLER';
