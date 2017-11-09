@@ -14,7 +14,7 @@ module.exports = {
     "ip": "138.197.90.92",
     "port": 6389,
     "user": "duo",
-    "db": 0,
+    "db": 4,
     "password": "DuoS123",
     "sentinels":{
       "hosts": "138.197.90.92,45.55.205.92,138.197.90.92",
