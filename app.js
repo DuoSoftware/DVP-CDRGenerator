@@ -842,7 +842,7 @@ var processSingleCdrLeg = function(uuid, callback)
                          }*/
 
 
-                        cdrAppendObj.IvrConnectSec = cdrAppendObj.Duration - cdrAppendObj.QueueSec - cdrAppendObj.HoldSec - cdrAppendObj.BillSec;
+                        cdrAppendObj.IvrConnectSec = cdrAppendObj.Duration - cdrAppendObj.QueueSec - cdrAppendObj.BillSec;
 
 
                         cdrAppendObj.IsAnswered = outLegAnswered;
