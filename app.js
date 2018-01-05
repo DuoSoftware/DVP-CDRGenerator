@@ -724,6 +724,7 @@ var processSingleCdrLeg = function(uuid, callback)
                         cdrAppendObj.TenantId = primaryLeg.TenantId;
                         cdrAppendObj.ExtraData = primaryLeg.ExtraData;
                         cdrAppendObj.IsQueued = primaryLeg.IsQueued;
+                        cdrAppendObj.BusinessUnit = primaryLeg.BusinessUnit;
 
                         cdrAppendObj.AgentAnswered = primaryLeg.AgentAnswered;
 
