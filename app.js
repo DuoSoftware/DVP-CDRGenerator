@@ -951,7 +951,7 @@ var job = schedule.scheduleJob(rule, function(){
 
                         var hrsDiff = utcMoment.diff(keyMoment, 'hours');
 
-                        if(hrsDiff > -1)
+                        if(hrsDiff > 2)
                         {
                             //get redis set values
                             arr.push(processSetData.bind(this, keysArr[key]));
