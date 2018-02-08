@@ -464,6 +464,8 @@ var processCampaignCDR = function(primaryLeg, curCdr)
 
             cdrAppendObj.IsAnswered = customerLeg.IsAnswered;
 
+            cdrAppendObj.IsQueued = customerLeg.IsQueued;
+
         }
 
         if(agentLeg)
@@ -475,7 +477,6 @@ var processCampaignCDR = function(primaryLeg, curCdr)
             if(firstLeg.ObjType !== 'AGENT')
             {
                 cdrAppendObj.AgentAnswered = agentLeg.IsAnswered;
-                cdrAppendObj.IsQueued = agentLeg.IsQueued;
             }
         }
 
@@ -950,7 +951,7 @@ var job = schedule.scheduleJob(rule, function(){
 
                         var hrsDiff = utcMoment.diff(keyMoment, 'hours');
 
-                        if(hrsDiff > 2)
+                        if(hrsDiff > -1)
                         {
                             //get redis set values
                             arr.push(processSetData.bind(this, keysArr[key]));
