@@ -255,7 +255,7 @@ var processCDRLegs = function(processedCdr, cdrList, callback)
     }
     else
     {
-        if(processedCdr.ObjType === 'HTTAPI' || processedCdr.ObjType === 'SOCKET')
+        if(processedCdr.ObjType === 'HTTAPI' || processedCdr.ObjType === 'SOCKET' || processedCdr.ObjCategory === 'DIALER')
         {
             collectBLegs(cdrList[processedCdr.Uuid], processedCdr.Uuid, processedCdr.CallUuid, function(err, resp)
             {
@@ -444,7 +444,7 @@ var processCampaignCDR = function(primaryLeg, curCdr)
         });
 
         var agentLeg = otherLegs.find(function (item) {
-            if (item.ObjType === 'AGENT') {
+            if (item.ObjType === 'AGENT' || item.ObjType === 'PRIVATE_USER') {
                 return true;
             }
             else {
@@ -470,10 +470,12 @@ var processCampaignCDR = function(primaryLeg, curCdr)
         {
             holdSecTemp = holdSecTemp + agentLeg.HoldSec;
             callHangupDirectionB = agentLeg.HangupDisposition;
+            cdrAppendObj.RecievedBy = agentLeg.SipToUser;
 
             if(firstLeg.ObjType !== 'AGENT')
             {
                 cdrAppendObj.AgentAnswered = agentLeg.IsAnswered;
+                cdrAppendObj.IsQueued = agentLeg.IsQueued;
             }
         }
 
@@ -724,6 +726,7 @@ var processSingleCdrLeg = function(uuid, callback)
                         cdrAppendObj.TenantId = primaryLeg.TenantId;
                         cdrAppendObj.ExtraData = primaryLeg.ExtraData;
                         cdrAppendObj.IsQueued = primaryLeg.IsQueued;
+                        cdrAppendObj.BusinessUnit = primaryLeg.BusinessUnit;
 
                         cdrAppendObj.AgentAnswered = primaryLeg.AgentAnswered;
 
@@ -842,7 +845,7 @@ var processSingleCdrLeg = function(uuid, callback)
                          }*/
 
 
-                        cdrAppendObj.IvrConnectSec = cdrAppendObj.Duration - cdrAppendObj.QueueSec - cdrAppendObj.HoldSec - cdrAppendObj.BillSec;
+                        cdrAppendObj.IvrConnectSec = cdrAppendObj.Duration - cdrAppendObj.QueueSec - cdrAppendObj.BillSec;
 
 
                         cdrAppendObj.IsAnswered = outLegAnswered;
