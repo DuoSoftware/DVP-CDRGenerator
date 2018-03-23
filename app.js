@@ -464,6 +464,8 @@ var processCampaignCDR = function(primaryLeg, curCdr)
 
             cdrAppendObj.IsAnswered = customerLeg.IsAnswered;
 
+            cdrAppendObj.IsQueued = customerLeg.IsQueued;
+
         }
 
         if(agentLeg)
@@ -475,7 +477,6 @@ var processCampaignCDR = function(primaryLeg, curCdr)
             if(firstLeg.ObjType !== 'AGENT')
             {
                 cdrAppendObj.AgentAnswered = agentLeg.IsAnswered;
-                cdrAppendObj.IsQueued = agentLeg.IsQueued;
             }
         }
 
