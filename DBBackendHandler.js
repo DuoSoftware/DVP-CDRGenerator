@@ -66,7 +66,7 @@ var getBLegsForIVRCalls = function(uuid, callUuid, callback)
 {
     try
     {
-        dbModel.CallCDR.findAll({where :[{CallUuid: callUuid, Direction: 'outbound', Uuid: {ne: uuid}}]}).then(function(callLegs)
+        dbModel.CallCDR.findAll({where :[{$or:[{CallUuid: callUuid}, {MemberUuid: callUuid}], Direction: 'outbound', Uuid: {ne: uuid}}]}).then(function(callLegs)
         {
             callback(null, callLegs);
         });
