@@ -651,6 +651,7 @@ var processSingleCdrLeg = function(uuid, callback)
 
 
                     cdrAppendObj.IsAnswered = outLegAnswered;
+                    cdrAppendObj.AgentAnswered = cdrAppendObj.IsAnswered;
 
 
                     if (callHangupDirectionA === 'recv_bye')
@@ -689,7 +690,7 @@ var processSingleCdrLeg = function(uuid, callback)
 };
 
 
-var processSetData = function(setName, cb)
+/*var processSetData = function(setName, cb)
 {
 
     var isSetEmpty = false;
@@ -718,9 +719,9 @@ var processSetData = function(setName, cb)
             cb(null, true);
         }
     );
-};
+};*/
 
-var job = schedule.scheduleJob(rule, function(){
+/*var job = schedule.scheduleJob(rule, function(){
 
     //get current time in utc
 
@@ -780,4 +781,10 @@ var job = schedule.scheduleJob(rule, function(){
 
         })
     }
+});*/
+
+
+processSingleCdrLeg('a7483581-3b3b-43f1-a403-e6823210ea13', function(err, resp)
+{
+    console.log(resp);
 });
